@@ -1,0 +1,1 @@
+/Library/Developer/CommandLineTools/usr/bin/c++  -Wall -pthread -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/server.dir/server.cpp.o CMakeFiles/server.dir/WebsocketServer.cpp.o -o server  libjsoncpp.a 

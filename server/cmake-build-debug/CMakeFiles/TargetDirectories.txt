@@ -1,0 +1,4 @@
+/Users/yunbochow/Desktop/Git/Server/server/cmake-build-debug/CMakeFiles/jsoncpp.dir
+/Users/yunbochow/Desktop/Git/Server/server/cmake-build-debug/CMakeFiles/server.dir
+/Users/yunbochow/Desktop/Git/Server/server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/yunbochow/Desktop/Git/Server/server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
