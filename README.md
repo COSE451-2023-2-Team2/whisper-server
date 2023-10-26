@@ -1,7 +1,7 @@
-C++ WebSocket Server Demo
+C++ WebSocket Server 
 =========================
 
-This is a little demo project that implements a C++ server using the [WebSocket++](https://github.com/zaphoyd/websocketpp) WebSocket library. It was originally created for a [Club++ Workshop](https://github.com/club-plus-plus/websocket-server-workshop), and is provided here so that it might be used as the basis for future projects that require WebSocket server functionality.
+This is a project that implements a C++ server using the [WebSocket++](https://github.com/zaphoyd/websocketpp) WebSocket library. This project utilises the server in order to provide a chatting platform as well as implementing some security vulnarabilites in order to imporve ones software security abilities by finding them. 
 
 
 Dependencies
