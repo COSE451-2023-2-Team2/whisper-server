@@ -61,6 +61,22 @@ int main(int argc, char* argv[])
             }
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
+            //todo write functionality for chekiking if the login exsits. Perhaps a hashmap.
+            server.broadcastMessage("message", args);
+        });
+    });
+
+    server.message("register", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server]()
+        {
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
+            std::clog << args["email"].asString() << std::endl;
+            std::clog << args["id"].asString() << std::endl;
+            std::clog << args["pw"].asString() << std::endl;
+            //todo write functionality for chekiking if the id already exists on the hashmap. And saving the values there. 
             server.broadcastMessage("message", args);
         });
     });
