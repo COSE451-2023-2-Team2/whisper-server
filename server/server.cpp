@@ -22,7 +22,8 @@ int main(int argc, char* argv[])
 			std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
 			
 			//Send a hello message to the client
-			server.sendMessage(conn, "hello", Json::Value());
+			//server.sendMessage(conn, std::to_string(server.numConnections()), Json::Value());
+            server.broadcastMessage("Hello! Welcome to Cesco's chat, there are currently: " + std::to_string(server.numConnections()) + " active users", Json::Value());
 		});
 	});
 	server.disconnect([&mainEventLoop, &server](ClientConnection conn)
@@ -31,6 +32,7 @@ int main(int argc, char* argv[])
 		{
 			std::clog << "Connection closed." << std::endl;
 			std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
+            server.broadcastMessage("Someone has left the chat. Current active user count: " + std::to_string(server.numConnections()), Json::Value());
 		});
 	});
 	server.message("message", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
@@ -50,6 +52,18 @@ int main(int argc, char* argv[])
 
 		});
 	});
+    server.message("login", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server]()
+        {
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
+            std::clog << args["id"].asString() << std::endl;
+            std::clog << args["pw"].asString() << std::endl;
+            server.broadcastMessage("message", args);
+        });
+    });
 	
 	//Start the networking thread
 	std::thread serverThread([&server]() {

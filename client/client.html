@@ -17,6 +17,8 @@
 				{
 					//Extract the message type
 					var messageData = JSON.parse(data);
+					//alert(messageData);
+					console.log(JSON.stringify(messageData));
 					var messageType = messageData['__MESSAGE__'];
 					delete messageData['__MESSAGE__'];
 					
@@ -72,7 +74,7 @@
 			
 			$(document).ready(function()
 			{
-				var socket = new SocketWrapper("ws://172.30.1.8:8080");
+				var socket = new SocketWrapper("ws://172.16.101.18:8080");
 
 				//Generic events
 				
@@ -99,7 +101,8 @@
 				});
 				
 				$('#send').click(function() {
-					var temp = '{"input":"' + $('#args').val() + '"}';
+					//var temp = '{"input":"' + $('#args').val() + '"}';
+					var temp = $('#args').val();
 					socket.send($('#message').val(), JSON.parse(temp));
 				});
 			});
