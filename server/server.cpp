@@ -3,16 +3,38 @@
 #include <iostream>
 #include <thread>
 #include <asio/io_service.hpp>
+#include <unordered_map>
 
 //The port number the WebSocket server listens on
 #define PORT_NUMBER 8080
+
+class Hashmap {
+    std::unordered_map<string, string> map;
+
+public:
+    void put(string key, string value) {
+        map[key] = value;
+    }
+
+    string get(string key) {
+        return map[key];
+    }
+};
 
 int main(int argc, char* argv[])
 {
 	//Create the event loop for the main thread, and the WebSocket server
 	asio::io_service mainEventLoop;
 	WebsocketServer server;
-	
+    Hashmap users;
+    //Under is a function hashmap.
+    /*
+    users.put("key1", "vaaaaaaaaluuuue");
+    users.put("key2", "yoyoyoyooyyo");
+    std::cout << users.get("key1") << ";;;;;;;" << users.get("key2") << std::endl;
+     */
+
+
 	//Register our network callbacks, ensuring the logic is run on the main thread's event loop
 	server.connect([&mainEventLoop, &server](ClientConnection conn)
 	{
