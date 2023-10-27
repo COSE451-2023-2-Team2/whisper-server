@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
             //todo write functionality for chekiking if the login exsits. Perhaps a hashmap.
-            server.broadcastMessage("message", args);
+            server.broadcastMessage("login", args);
         });
     });
 
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
             //todo write functionality for chekiking if the id already exists on the hashmap. And saving the values there. 
-            server.broadcastMessage("message", args);
+            server.broadcastMessage("register", args);
         });
     });
 	

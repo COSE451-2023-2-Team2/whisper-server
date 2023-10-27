@@ -19,8 +19,8 @@
 					var messageData = JSON.parse(data);
 					//alert(messageData);
 					console.log(JSON.stringify(messageData));
-					var messageType = messageData['__MESSAGE__'];
-					delete messageData['__MESSAGE__'];
+					var messageType = messageData['MessageType'];
+					delete messageData['MessageType'];
 					
 					//If any handlers have been registered for the message type, invoke them
 					if (that.messageHandlers[messageType] !== undefined)
@@ -62,7 +62,7 @@
 					}
 				}
 				
-				payloadCopy['__MESSAGE__'] = message;
+				payloadCopy['MessageType'] = message;
 				this.socket.send(JSON.stringify(payloadCopy));
 			}
 			

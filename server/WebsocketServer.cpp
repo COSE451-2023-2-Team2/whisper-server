@@ -5,7 +5,7 @@
 #include <iostream>
 
 //The name of the special JSON field that holds the message type for messages
-#define MESSAGE_FIELD "__MESSAGE__"
+#define MESSAGE_FIELD "MessageType"
 
 Json::Value WebsocketServer::parseJson(const string& json)
 {
@@ -58,8 +58,9 @@ void WebsocketServer::sendMessage(ClientConnection conn, const string& messageTy
 {
 	//Copy the argument values, and bundle the message type into the object
 	Json::Value messageData = arguments;
-	messageData[MESSAGE_FIELD] = messageType;
-	
+    std::cout << messageData << std::endl;
+    messageData[MESSAGE_FIELD] = messageType;
+
 	//Send the JSON data to the client (will happen on the networking thread's event loop)
 	this->endpoint.send(conn, WebsocketServer::stringifyJson(messageData), websocketpp::frame::opcode::text);
 }
