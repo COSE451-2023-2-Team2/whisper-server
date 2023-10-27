@@ -19,6 +19,9 @@ public:
     string get(string key) {
         return map[key];
     }
+    bool checkIfKeyExist(string key){
+        return map.count(key)>0;
+    }
 };
 
 int main(int argc, char* argv[])
@@ -33,7 +36,6 @@ int main(int argc, char* argv[])
     users.put("key2", "yoyoyoyooyyo");
     std::cout << users.get("key1") << ";;;;;;;" << users.get("key2") << std::endl;
      */
-
 
 	//Register our network callbacks, ensuring the logic is run on the main thread's event loop
 	server.connect([&mainEventLoop, &server](ClientConnection conn)
@@ -88,9 +90,9 @@ int main(int argc, char* argv[])
         });
     });
 
-    server.message("register", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
+    server.message("register", [&mainEventLoop, &server, &users](ClientConnection conn, const Json::Value& args)
     {
-        mainEventLoop.post([conn, args, &server]()
+        mainEventLoop.post([conn, args, &server, &users]()
         {
             for (auto key : args.getMemberNames()) {
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
@@ -98,7 +100,14 @@ int main(int argc, char* argv[])
             std::clog << args["email"].asString() << std::endl;
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
-            //todo write functionality for chekiking if the id already exists on the hashmap. And saving the values there. 
+            //todo write functionality for chekiking if the id already exists on the hashmap. And saving the values there.
+
+            if(users.checkIfKeyExist(args["id"].asString())){
+                Json::Value newArg;
+                newArg.append("Error, this id is taken");
+                server.sendMessage(conn, "error", newArg);
+                server.broadcastMessage("register", newArg);
+            }
             server.broadcastMessage("register", args);
         });
     });
