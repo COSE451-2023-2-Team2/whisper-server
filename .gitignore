@@ -46,3 +46,5 @@ server/cmake-build-debug/.cmake/api/v1/reply/index-2023-10-26T07-20-53-0649.json
 server/cmake-build-debug/CMakeFiles/clion-Debug-log.txt
 server/cmake-build-debug/CMakeFiles/Makefile.cmake
 server/cmake-build-debug/server
+server/cmake-build-debug/server
+server/cmake-build-debug/Testing/Temporary/LastTest.log

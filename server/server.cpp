@@ -76,17 +76,32 @@ int main(int argc, char* argv[])
 
 		});
 	});
-    server.message("login", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
+    server.message("login", [&mainEventLoop, &server, &users](ClientConnection conn, const Json::Value& args)
     {
-        mainEventLoop.post([conn, args, &server]()
+        mainEventLoop.post([conn, args, &server, &users]()
         {
             for (auto key : args.getMemberNames()) {
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
             }
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
-            //todo write functionality for chekiking if the login exsits. Perhaps a hashmap.
-            server.broadcastMessage("login", args);
+            
+            if(args["id"].asString().empty() || args["pw"].asString().empty()){
+                Json::Value newArg;
+                newArg["Error"] = "ID and/or PW is wrong";
+                server.sendMessage(conn, "error", newArg);
+            } else {
+                if(users.get(args["id"].asString()) == args["pw"].asString()){
+                    Json::Value newArg;
+                    newArg["Success"] = "Successful login";
+                    server.sendMessage(conn, "success", newArg);
+                } else {
+                    Json::Value newArg;
+                    newArg["Error"] = "ID and/or PW is wrong";
+                    server.sendMessage(conn, "error", newArg);
+                }
+            }
+
         });
     });
 
