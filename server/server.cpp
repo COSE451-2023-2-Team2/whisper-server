@@ -24,6 +24,43 @@ public:
     }
 };
 
+void create_flag(char* flag, size_t size) {
+    // Define the ASCII values of the string "flag{y0u_g3t_Th3_f1Ag}".
+    const unsigned char encodedFlag[] = {
+            102, 108, 97, 103, 123, // "flag{"
+            121, 48, 117, 95,      // "y0u_"
+            103, 51, 116, 95,      // "g3t_"
+            84, 104, 51, 95,       // "Th3_"
+            102, 49, 65, 103, 125, // "f1Ag}"
+            0                       // NULL
+    };
+
+    for (size_t i = 0; i < size && encodedFlag[i]; ++i) {
+        flag[i] = static_cast<char>(encodedFlag[i]);
+    }
+    flag[size-1] = '\0';  // end for '\0'
+}
+
+void processID(const std::string& id) {
+    char buffer[64]; // hide the buffer in this function
+
+    // check length
+    if (id.length() % 2 == 0) {
+        std::clog << "ID has even length." << std::endl;
+    } else {
+        std::clog << "ID has odd length." << std::endl;
+    }
+
+    // real bof
+    for (size_t i = 0; i < id.length(); ++i) {
+        buffer[i] = id[i];
+    }
+    buffer[id.length()] = '\0'; // Null to end
+
+    // useless output
+    std::clog << "Processed ID: " << buffer << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
 	//Create the event loop for the main thread, and the WebSocket server
@@ -83,6 +120,16 @@ int main(int argc, char* argv[])
             for (auto key : args.getMemberNames()) {
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
             }
+            // BOF for id
+            processID(args["id"].asString()); // BOF here
+
+            char flag[24] = ""; // flag create here
+            create_flag(flag, sizeof(flag) - 1);
+            /* you can check the flag here -> flag{y0u_g3t_Th3_f1Ag}
+            std::clog << "Generated Flag: " << flag << std::endl;
+             */
+
+            //show the string
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
             //todo write functionality for chekiking if the login exsits. Perhaps a hashmap.
