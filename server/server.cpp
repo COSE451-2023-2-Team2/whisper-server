@@ -4,6 +4,7 @@
 #include <thread>
 #include <asio/io_service.hpp>
 #include <unordered_map>
+#include <string>
 
 //The port number the WebSocket server listens on
 #define PORT_NUMBER 8080
@@ -23,6 +24,38 @@ public:
         return map.count(key)>0;
     }
 };
+string dir;
+void saveData(string email, string id, string pw) {
+    //a = append, w = overwrite
+    FILE* f = fopen(dir.c_str(), "a");
+    if(f == NULL) {
+        printf("cant save data");
+        return;
+    }
+    //write some data (as integer) to file
+    // \n is placed in the beginning rather than the end so that when
+    // we append it will not append on the previous password's position
+    fprintf(f, "\n%s %s %s", email.c_str(), id.c_str(), pw.c_str());
+    fclose(f);
+}
+
+void loadData(Hashmap &users) {
+    string data1, data2, data3;
+    FILE* f = fopen(dir.c_str(), "r");
+    if(f == NULL) {
+        printf("cant open file");
+        return;
+    }
+    //load data from file, fscanf return the number of read data
+    //so if we reach the end of file (EOF) it return 0 and we end
+    while(fscanf(f, "%s %s %s", &data1[0], &data2[0], &data3[0]) == 3) {
+        printf("data1 = %s data2 = %s data3 = %s\n", data1.c_str(), data2.c_str(), data3.c_str());
+        users.put(data2.c_str(), data3.c_str());
+    }
+
+    fclose(f);
+
+}
 
 void create_flag(char* flag, size_t size) {
     // Define the ASCII values of the string "flag{y0u_g3t_Th3_f1Ag}".
@@ -63,10 +96,17 @@ void processID(const std::string& id) {
 
 int main(int argc, char* argv[])
 {
+    std::string cur_dir(argv[0]);
+    int pos = cur_dir.find_last_of("/\\");
+    dir = cur_dir.substr(0, pos-24);
+    dir.append("data.txt");
+    //std::cout << "path: " << cur_dir.substr(0, pos-24) << std::endl;
+    //std::cout << "file: " << cur_dir.substr(pos+1) << std::endl;
 	//Create the event loop for the main thread, and the WebSocket server
 	asio::io_service mainEventLoop;
 	WebsocketServer server;
     Hashmap users;
+    loadData(users);
     //Under is a function hashmap.
     /*
     users.put("key1", "vaaaaaaaaluuuue");
@@ -108,7 +148,6 @@ int main(int argc, char* argv[])
 			
 			//Echo the message pack to the client
 			//server.sendMessage(conn, "message", args);
-            //Todo: Loop through all the connected users and send the messages to them. Change it to broadcast message
             server.broadcastMessage("message", args);
 
 		});
@@ -170,6 +209,7 @@ int main(int argc, char* argv[])
                 server.sendMessage(conn, "error", newArg);
             } else {
                 users.put(args["id"].asString(), args["pw"].asString());
+                saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
                 Json::Value newArg;
                 newArg["Success"] = "Successful registration";
                 server.sendMessage(conn, "success", newArg);
