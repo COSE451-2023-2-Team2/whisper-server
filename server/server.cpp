@@ -100,15 +100,19 @@ int main(int argc, char* argv[])
             std::clog << args["email"].asString() << std::endl;
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
-            //todo write functionality for chekiking if the id already exists on the hashmap. And saving the values there.
 
             if(users.checkIfKeyExist(args["id"].asString())){
                 Json::Value newArg;
-                newArg.append("Error, this id is taken");
+                //newArg.append("Error, this id is taken");
+                newArg["Error"] = "Error, this id is taken";
                 server.sendMessage(conn, "error", newArg);
-                server.broadcastMessage("register", newArg);
+            } else {
+                users.put(args["id"].asString(), args["pw"].asString());
+                Json::Value newArg;
+                newArg["Success"] = "Successful registration";
+                server.sendMessage(conn, "success", newArg);
+                server.sendMessage(conn,"register", args);
             }
-            server.broadcastMessage("register", args);
         });
     });
 	
