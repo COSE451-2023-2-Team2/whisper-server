@@ -39,7 +39,7 @@ void saveData(string email, string id, string pw) {
     fclose(f);
 }
 
-void loadData(Hashmap &users) {
+void loadData(Hashmap &users, Hashmap &email) {
     string data1, data2, data3;
     FILE* f = fopen(dir.c_str(), "r");
     if(f == NULL) {
@@ -51,6 +51,7 @@ void loadData(Hashmap &users) {
     while(fscanf(f, "%s %s %s", &data1[0], &data2[0], &data3[0]) == 3) {
         printf("data1 = %s data2 = %s data3 = %s\n", data1.c_str(), data2.c_str(), data3.c_str());
         users.put(data2.c_str(), data3.c_str());
+        email.put(data1.c_str(), data2.c_str());
     }
 
     fclose(f);
@@ -106,7 +107,8 @@ int main(int argc, char* argv[])
 	asio::io_service mainEventLoop;
 	WebsocketServer server;
     Hashmap users;
-    loadData(users);
+    Hashmap email;
+    loadData(users, email);
     //Under is a function hashmap.
     /*
     users.put("key1", "vaaaaaaaaluuuue");
@@ -191,9 +193,9 @@ int main(int argc, char* argv[])
         });
     });
 
-    server.message("register", [&mainEventLoop, &server, &users](ClientConnection conn, const Json::Value& args)
+    server.message("register", [&mainEventLoop, &server, &users, &email](ClientConnection conn, const Json::Value& args)
     {
-        mainEventLoop.post([conn, args, &server, &users]()
+        mainEventLoop.post([conn, args, &server, &users, &email]()
         {
             for (auto key : args.getMemberNames()) {
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
@@ -202,13 +204,14 @@ int main(int argc, char* argv[])
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
 
-            if(users.checkIfKeyExist(args["id"].asString())){
+            if(users.checkIfKeyExist(args["id"].asString()) || email.checkIfKeyExist(args["email"].asString())){
                 Json::Value newArg;
                 //newArg.append("Error, this id is taken");
-                newArg["Error"] = "Error, this id is taken";
+                newArg["Error"] = "Error, this id/email is taken";
                 server.sendMessage(conn, "error", newArg);
             } else {
                 users.put(args["id"].asString(), args["pw"].asString());
+                email.put(args["email"].asString(), args["id"].asString());
                 saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
                 Json::Value newArg;
                 newArg["Success"] = "Successful registration";
