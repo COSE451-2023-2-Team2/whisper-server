@@ -74,11 +74,11 @@
 			
 			$(document).ready(function()
 			{
-				var socket = new SocketWrapper("ws://192.168.1.11:8080");
-				log("Left window is for MessageType and right window is for inputs. \n" +
-						"In order to register an account, input on left window register and on right window enter your email,id,pw with the comma as separator \n" +
-						"In order to login, input on left window login and on right window enter your id,pw with the comma as separator \n" +
-						"In order to message, input on left window message and on right window enter your message. *needs to be logged in*");
+				var socket = new SocketWrapper("ws://192.168.35.175:8080");
+				log("Left box is for MessageType and right box is for inputs. \n" +
+						"In order to register an account, input on left box register and on right box enter your email,id,pw with the comma as separator \n" +
+						"In order to login, input on left box login and on right box enter your id,pw with the comma as separator \n" +
+						"In order to message, input on left box message and on right box enter your message. *needs to be logged in*");
 				//Generic events
 				localStorage.clear();
 				
@@ -123,8 +123,14 @@
 					} else if(localStorage.getItem("userid") != null && $('#message').val() === "message"){
 						temp = '{"id":"' + localStorage.getItem("userid") +'", "input":"' + $('#args').val() + '"}';
 						socket.send($('#message').val(), JSON.parse(temp));
-					} else {
-						log("You need to login first");
+					} else if($('#message').val() === "register" && localStorage.getItem("userid") != null){
+						log("You need to logout first in order to register (refresh the page)");
+					} else if($('#message').val() === "message" && localStorage.getItem("userid") === null){
+						log("You need to login first before you can message");
+					} else if(localStorage.getItem("userid") != null && $('#message').val() === "login"){
+						log("You are already logged in");
+					}else {
+						log("invalid inputs. Check if the correct action is written in the left box and the correct input for the right box");
 					}
 					//var temp = '{' + localStorage.getItem("userid") + $('#args').val() + '}';
 					//var temp = '{' + localStorage.getItem("userid") + ':' + $('#args').val() + '}';
