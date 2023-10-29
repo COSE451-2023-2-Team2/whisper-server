@@ -6,7 +6,7 @@
 		<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="simplewebsocket.min.js"></script>
 		<script type="text/javascript">
-			
+
 			function SocketWrapper(init)
 			{
 				this.socket = new SimpleWebsocket(init);
@@ -74,9 +74,13 @@
 			
 			$(document).ready(function()
 			{
-				var socket = new SocketWrapper("ws://172.16.101.10:8080");
-
+				var socket = new SocketWrapper("ws://192.168.1.11:8080");
+				log("Left window is for MessageType and right window is for inputs. \n" +
+						"In order to register an account, input on left window register and on right window enter your email,id,pw with the comma as separator \n" +
+						"In order to login, input on left window login and on right window enter your id,pw with the comma as separator \n" +
+						"In order to message, input on left window message and on right window enter your message. *needs to be logged in*");
 				//Generic events
+				localStorage.clear();
 				
 				socket.on('connect', function() {
 					log("socket is connected!");
@@ -84,10 +88,16 @@
 				
 				socket.on('data', function(data) {
 					log('got message: ' + data)
+					const obj = JSON.parse(data);
+					if(obj["Success"] === "Successful login"){
+						localStorage.setItem("userid",obj["id"]);
+						console.log(localStorage.getItem("userid"));
+					}
 				});
 				
 				socket.on('close', function() {
 					log("socket is disconnected!");
+					localStorage.removeItem("userid");
 				});
 				
 				socket.on('error', function(err) {
@@ -101,9 +111,24 @@
 				});
 				
 				$('#send').click(function() {
-					//var temp = '{"input":"' + $('#args').val() + '"}';
-					var temp = $('#args').val();
-					socket.send($('#message').val(), JSON.parse(temp));
+					var temp;
+					if(localStorage.getItem("userid") === null && $('#message').val() === "login"){
+						const array = $('#args').val().split(",");
+						temp = '{"id":"' + array[0] + '", "pw":"' + array[1] + '"}';
+						socket.send($('#message').val(), JSON.parse(temp));
+					} else if(localStorage.getItem("userid") === null && $('#message').val() === "register"){
+						const array = $('#args').val().split(",");
+						temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
+						socket.send($('#message').val(), JSON.parse(temp));
+					} else if(localStorage.getItem("userid") != null && $('#message').val() === "message"){
+						temp = '{"id":"' + localStorage.getItem("userid") +'", "input":"' + $('#args').val() + '"}';
+						socket.send($('#message').val(), JSON.parse(temp));
+					} else {
+						log("You need to login first");
+					}
+					//var temp = '{' + localStorage.getItem("userid") + $('#args').val() + '}';
+					//var temp = '{' + localStorage.getItem("userid") + ':' + $('#args').val() + '}';
+					//socket.send($('#message').val(), JSON.parse(temp));
 				});
 			});
 			

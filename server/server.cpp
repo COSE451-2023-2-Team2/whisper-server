@@ -20,6 +20,7 @@ public:
     string get(string key) {
         return map[key];
     }
+
     bool checkIfKeyExist(string key){
         return map.count(key)>0;
     }
@@ -150,7 +151,9 @@ int main(int argc, char* argv[])
 			
 			//Echo the message pack to the client
 			//server.sendMessage(conn, "message", args);
-            server.broadcastMessage("message", args);
+            if(!args["id"].isNull()){
+                server.broadcastMessage("message", args);
+            }
 
 		});
 	});
@@ -182,6 +185,7 @@ int main(int argc, char* argv[])
                 if(users.get(args["id"].asString()) == args["pw"].asString()){
                     Json::Value newArg;
                     newArg["Success"] = "Successful login";
+                    newArg["id"] = args["id"].asString();
                     server.sendMessage(conn, "success", newArg);
                 } else {
                     Json::Value newArg;
