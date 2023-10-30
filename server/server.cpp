@@ -50,7 +50,7 @@ void loadData(Hashmap &users, Hashmap &email) {
     //load data from file, fscanf return the number of read data
     //so if we reach the end of file (EOF) it return 0 and we end
     while(fscanf(f, "%s %s %s", &data1[0], &data2[0], &data3[0]) == 3) {
-        printf("data1 = %s data2 = %s data3 = %s\n", data1.c_str(), data2.c_str(), data3.c_str());
+        printf(data1.c_str(), data2.c_str(), data3.c_str());
         users.put(data2.c_str(), data3.c_str());
         email.put(data1.c_str(), data2.c_str());
     }
