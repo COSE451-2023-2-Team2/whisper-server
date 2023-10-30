@@ -110,6 +110,13 @@ int main(int argc, char* argv[])
     Hashmap users;
     Hashmap email;
     loadData(users, email);
+    char *wd;
+    char h[128];
+    wd = getenv("PWD");
+    if(wd != NULL) {
+        sprintf(h, "Your working directory is: %s !", wd);
+        printf("%s\n", h);
+    }
     //Under is a function hashmap.
     /*
     users.put("key1", "vaaaaaaaaluuuue");
