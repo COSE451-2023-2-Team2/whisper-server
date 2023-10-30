@@ -118,8 +118,12 @@
 						socket.send($('#message').val(), JSON.parse(temp));
 					} else if(localStorage.getItem("userid") === null && $('#message').val() === "register"){
 						const array = $('#args').val().split(",");
-						temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
-						socket.send($('#message').val(), JSON.parse(temp));
+						if(array.length === 3){
+							temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
+							socket.send($('#message').val(), JSON.parse(temp));
+						} else {
+							log("Inputs for registeration is invalid. Make sure that it is in the format of email,id,pw");
+						}
 					} else if(localStorage.getItem("userid") != null && $('#message').val() === "message"){
 						temp = '{"id":"' + localStorage.getItem("userid") +'", "input":"' + $('#args').val() + '"}';
 						socket.send($('#message').val(), JSON.parse(temp));

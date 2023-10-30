@@ -181,8 +181,10 @@ int main(int argc, char* argv[])
              */
 
             //show the string
-            std::clog << args["id"].asString() << std::endl;
-            std::clog << args["pw"].asString() << std::endl;
+            //std::clog << args["id"].asString() << std::endl;
+            //std::clog << args["pw"].asString() << std::endl;
+            std::printf(args["id"].asCString());
+            std::printf(args["pw"].asCString());
             
             if(args["id"].asString().empty() || args["pw"].asString().empty()){
                 Json::Value newArg;
