@@ -74,7 +74,7 @@
 			
 			$(document).ready(function()
 			{
-				var socket = new SocketWrapper("ws://10.16.145.60:8080");
+				var socket = new SocketWrapper("ws://192.168.0.7:8080");
 				log("Left box is for MessageType and right box is for inputs. \n" +
 						"In order to register an account, input on left box register and on right box enter your email,id,pw with the comma as separator \n" +
 						"In order to login, input on left box login and on right box enter your id,pw with the comma as separator \n" +
@@ -123,6 +123,14 @@
 							socket.send($('#message').val(), JSON.parse(temp));
 						} else {
 							log("Inputs for registeration is invalid. Make sure that it is in the format of email,id,pw");
+						}
+					} else if(localStorage.getItem("userid") === null && $('#message').val() === "resign"){
+						const array = $('#args').val().split(",");
+						if(array.length === 3){
+							temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
+							socket.send($('#message').val(), JSON.parse(temp));
+						} else {
+							log("Inputs for resign is invalid. Make sure that it is in the format of email,id,pw");
 						}
 					} else if(localStorage.getItem("userid") != null && $('#message').val() === "message"){
 						temp = '{"id":"' + localStorage.getItem("userid") +'", "input":"' + $('#args').val() + '"}';

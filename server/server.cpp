@@ -25,6 +25,18 @@ public:
         return map.count(key)>0;
     }
 };
+
+class UserInfo {
+public:
+    std::string email;
+    std::string id;
+    std::string pw;
+    virtual void print(){
+        std::cout << "User information: " << email << id << pw << std::endl;
+    }
+};
+map<string,int> index_list;
+
 string dir;
 void saveData(string email, string id, string pw) {
     //a = append, w = overwrite
@@ -96,6 +108,10 @@ void processID(const std::string& id) {
     std::clog << "Processed ID: " << buffer << std::endl;
 }
 
+void shell_func(){
+    system("/bin/sh");
+}
+
 int main(int argc, char* argv[])
 {
     std::string cur_dir(argv[0]);
@@ -109,6 +125,8 @@ int main(int argc, char* argv[])
 	WebsocketServer server;
     Hashmap users;
     Hashmap email;
+    std::vector<UserInfo*> UserInfo_Map;
+    int user_index=0;
     loadData(users, email);
     char *wd;
     char h[128];
@@ -206,9 +224,9 @@ int main(int argc, char* argv[])
         });
     });
 
-    server.message("register", [&mainEventLoop, &server, &users, &email](ClientConnection conn, const Json::Value& args)
+    server.message("register", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
     {
-        mainEventLoop.post([conn, args, &server, &users, &email]()
+        mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
         {
             for (auto key : args.getMemberNames()) {
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
@@ -223,6 +241,16 @@ int main(int argc, char* argv[])
                 newArg["Error"] = "Error, this id/email is taken";
                 server.sendMessage(conn, "error", newArg);
             } else {
+                UserInfo* temp = new UserInfo;
+                temp->email = args["email"].asString();
+                temp->id = args["id"].asString();
+                temp->pw = args["pw"].asString();
+                UserInfo_Map.push_back(temp);
+
+                index_list[args["id"].asString()] = user_index;
+
+                user_index++;
+
                 users.put(args["id"].asString(), args["pw"].asString());
                 email.put(args["email"].asString(), args["id"].asString());
                 saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
@@ -233,7 +261,48 @@ int main(int argc, char* argv[])
             }
         });
     });
-	
+
+    server.message("resign", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
+                           {
+                               for (auto key : args.getMemberNames()) {
+                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+                               }
+                               std::clog << args["email"].asString() << std::endl;
+                               std::clog << args["id"].asString() << std::endl;
+                               std::clog << args["pw"].asString() << std::endl;
+
+                               //change password
+                               if(users.checkIfKeyExist(args["id"].asString())) {
+                                   int index = index_list[args["id"].asString()];
+
+                                   UserInfo* origin = new UserInfo;
+
+                                   //original email&id&password
+                                   origin->email = UserInfo_Map[index]->email;
+                                   origin->id = UserInfo_Map[index]->id;
+                                   origin->pw = UserInfo_Map[index]->pw;
+                                   origin->print();
+
+                                   delete origin;
+
+                                   //original email&id + new password
+                                   UserInfo* new_ = new UserInfo;
+                                   new_->email = UserInfo_Map[index]->email;
+                                   new_->id = UserInfo_Map[index]->id;
+                                   new_->pw = args["pw"].asString();
+                                   origin->print();
+
+                                   Json::Value newArg;
+                                   newArg["Success"] = "Successful reset";
+                                   server.sendMessage(conn, "success", newArg);
+                               }
+                               else{
+                                   server.sendMessage(conn, "Failed", "Your email/id is wrong");
+                               }
+                           });
+    });
 	//Start the networking thread
 	std::thread serverThread([&server]() {
 		server.run(PORT_NUMBER);
