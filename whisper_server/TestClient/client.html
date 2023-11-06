@@ -102,9 +102,51 @@
 				socket.on('error', function(err) {
 					log("Error: " + err);
 				});
+				socket.on('userInput', function(args) {
+					log("Received user input: \"" + args['input'] + "\"");
+				});
+
+				$('#send').click(function() {
+					var temp;
+					if(localStorage.getItem("userid") === null && $('#message').val() === "login"){
+						const array = $('#args').val().split(",");
+						temp = '{"id":"' + array[0] + '", "pw":"' + array[1] + '"}';
+						socket.send($('#message').val(), JSON.parse(temp));
+					} else if(localStorage.getItem("userid") === null && $('#message').val() === "register"){
+						const array = $('#args').val().split(",");
+						if(array.length === 3){
+							temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
+							socket.send($('#message').val(), JSON.parse(temp));
+						} else {
+							log("Inputs for registeration is invalid. Make sure that it is in the format of email,id,pw");
+						}
+					} else if(localStorage.getItem("userid") === null && $('#message').val() === "resign"){
+						const array = $('#args').val().split(",");
+						if(array.length === 3){
+							temp = '{"email":"' + array[0] + '", "id":"' + array[1] + '", "pw":"' + array[2] + '"}';
+							socket.send($('#message').val(), JSON.parse(temp));
+						} else {
+							log("Inputs for resign is invalid. Make sure that it is in the format of email,id,pw");
+						}
+					} else if(localStorage.getItem("userid") != null && $('#message').val() === "message"){
+						temp = '{"id":"' + localStorage.getItem("userid") +'", "input":"' + $('#args').val() + '"}';
+						socket.send($('#message').val(), JSON.parse(temp));
+					} else if($('#message').val() === "register" && localStorage.getItem("userid") != null){
+						log("You need to logout first in order to register (refresh the page)");
+					} else if($('#message').val() === "message" && localStorage.getItem("userid") === null){
+						log("You need to login first before you can message");
+					} else if(localStorage.getItem("userid") != null && $('#message').val() === "login"){
+						log("You are already logged in");
+					}else {
+						log("invalid inputs. Check if the correct action is written in the left box and the correct input for the right box");
+					}
+					//var temp = '{' + localStorage.getItem("userid") + $('#args').val() + '}';
+					//var temp = '{' + localStorage.getItem("userid") + ':' + $('#args').val() + '}';
+					//socket.send($('#message').val(), JSON.parse(temp));
+				});
+			});
 
 
-				
 		</script>
 	</head>
 	
