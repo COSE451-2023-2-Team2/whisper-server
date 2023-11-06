@@ -308,6 +308,36 @@ int main(int argc, char* argv[]) {
                                    server.sendMessage(conn, "Failed", "Your email/id is wrong");
                                }
                            });
-        
+    });
+    //Start the networking thread
+    std::thread serverThread([&server]() {
+        server.run(PORT_NUMBER);
+    });
+
+    //Start a keyboard input thread that reads from stdin
+    std::thread inputThread([&server, &mainEventLoop]()
+                            {
+                                string input;
+                                while (1)
+                                {
+                                    //Read user input from stdin
+                                    std::getline(std::cin, input);
+
+                                    //Broadcast the input to all connected clients (is sent on the network thread)
+                                    Json::Value payload;
+                                    payload["input"] = input;
+                                    server.broadcastMessage("userInput", payload);
+
+                                    //Debug output on the main thread
+                                    mainEventLoop.post([]() {
+                                        std::clog << "User input debug output on the main thread" << std::endl;
+                                    });
+                                }
+                            });
+    
+    //Start the event loop for the main thread
+    asio::io_service::work work(mainEventLoop);
+    mainEventLoop.run();
+
     return 0;
 }
