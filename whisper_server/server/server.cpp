@@ -230,5 +230,43 @@ int main(int argc, char* argv[]) {
 
                            });
     });
+    server.message("register", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
+                           {
+                               for (auto key : args.getMemberNames()) {
+                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+                               }
+                               std::clog << args["email"].asString() << std::endl;
+                               std::clog << args["id"].asString() << std::endl;
+                               std::clog << args["pw"].asString() << std::endl;
+
+                               if(users.checkIfKeyExist(args["id"].asString()) || email.checkIfKeyExist(args["email"].asString())){
+                                   Json::Value newArg;
+                                   //newArg.append("Error, this id is taken");
+                                   newArg["Error"] = "Error, this id/email is taken";
+                                   server.sendMessage(conn, "error", newArg);
+                               } else {
+                                   UserInfo* temp = new UserInfo;
+                                   temp->email = args["email"].asString();
+                                   temp->id = args["id"].asString();
+                                   temp->pw = args["pw"].asString();
+                                   UserInfo_Map.push_back(temp);
+
+                                   index_list[args["id"].asString()] = user_index;
+
+                                   user_index++;
+
+                                   users.put(args["id"].asString(), args["pw"].asString());
+                                   email.put(args["email"].asString(), args["id"].asString());
+                                   saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
+                                   Json::Value newArg;
+                                   newArg["Success"] = "Successful registration";
+                                   server.sendMessage(conn, "success", newArg);
+                                   server.sendMessage(conn,"register", args);
+                               }
+                           });
+    });
+
     return 0;
 }
