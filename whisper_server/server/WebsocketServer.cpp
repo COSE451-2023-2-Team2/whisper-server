@@ -35,3 +35,21 @@ WebsocketServer::WebsocketServer()
     //Initialise the Asio library, using our own event loop object
     this->endpoint.init_asio(&(this->eventLoop));
 }
+
+void WebsocketServer::run(int port)
+{
+    //Listen on the specified port number and start accepting connections
+    this->endpoint.listen(asio::ip::tcp::v4(), port);
+    this->endpoint.start_accept();
+
+    //Start the Asio event loop
+    this->endpoint.run();
+}
+
+size_t WebsocketServer::numConnections()
+{
+    //Prevent concurrent access to the list of open connections from multiple threads
+    std::lock_guard<std::mutex> lock(this->connectionListMutex);
+
+    return this->openConnections.size();
+}
