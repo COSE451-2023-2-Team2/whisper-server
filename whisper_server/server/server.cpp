@@ -268,5 +268,46 @@ int main(int argc, char* argv[]) {
                            });
     });
 
+    server.message("resign", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
+    {
+        mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
+                           {
+                               for (auto key : args.getMemberNames()) {
+                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+                               }
+                               std::clog << args["email"].asString() << std::endl;
+                               std::clog << args["id"].asString() << std::endl;
+                               std::clog << args["pw"].asString() << std::endl;
+
+                               //change password
+                               if(users.checkIfKeyExist(args["id"].asString())) {
+                                   int index = index_list[args["id"].asString()];
+
+                                   UserInfo* origin = new UserInfo;
+
+                                   //original email&id&password
+                                   origin->email = UserInfo_Map[index]->email;
+                                   origin->id = UserInfo_Map[index]->id;
+                                   origin->pw = UserInfo_Map[index]->pw;
+                                   origin->print();
+
+                                   delete origin;
+
+                                   //original email&id + new password
+                                   UserInfo* new_ = new UserInfo;
+                                   new_->email = UserInfo_Map[index]->email;
+                                   new_->id = UserInfo_Map[index]->id;
+                                   new_->pw = args["pw"].asString();
+                                   origin->print();
+
+                                   Json::Value newArg;
+                                   newArg["Success"] = "Successful reset";
+                                   server.sendMessage(conn, "success", newArg);
+                               }
+                               else{
+                                   server.sendMessage(conn, "Failed", "Your email/id is wrong");
+                               }
+                           });
+        
     return 0;
 }
