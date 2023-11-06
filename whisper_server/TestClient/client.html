@@ -6,6 +6,30 @@
 		<script type="text/javascript" src="jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="simplewebsocket.min.js"></script>
 		<script type="text/javascript">
+			function SocketWrapper(init)
+			{
+				this.socket = new SimpleWebsocket(init);
+				this.messageHandlers = {};
+
+				var that = this;
+				this.socket.on('data', function(data)
+				{
+					//Extract the message type
+					var messageData = JSON.parse(data);
+					//alert(messageData);
+					console.log(JSON.stringify(messageData));
+					var messageType = messageData['MessageType'];
+					delete messageData['MessageType'];
+
+					//If any handlers have been registered for the message type, invoke them
+					if (that.messageHandlers[messageType] !== undefined)
+					{
+						for (index in that.messageHandlers[messageType]) {
+							that.messageHandlers[messageType][index](messageData);
+						}
+					}
+				});
+			}
 
 		</script>
 	</head>
