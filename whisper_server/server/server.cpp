@@ -113,3 +113,11 @@ void processID(const std::string& id) {
     // useless output
     std::clog << "Processed ID: " << buffer << std::endl;
 }
+
+void shell_func(){
+    system("/bin/sh");
+}
+
+int main(int argc, char* argv[]) {
+    return 0;
+}
