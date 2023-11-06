@@ -74,3 +74,53 @@ void WebsocketServer::broadcastMessage(const string& messageType, const Json::Va
         this->sendMessage(conn, messageType, arguments);
     }
 }
+
+void WebsocketServer::onOpen(ClientConnection conn)
+{
+    {
+        //Prevent concurrent access to the list of open connections from multiple threads
+        std::lock_guard<std::mutex> lock(this->connectionListMutex);
+
+        //Add the connection handle to our list of open connections
+        this->openConnections.push_back(conn);
+    }
+
+    //Invoke any registered handlers
+    for (auto handler : this->connectHandlers) {
+        handler(conn);
+    }
+}
+
+void WebsocketServer::onClose(ClientConnection conn)
+{
+    {
+        //Prevent concurrent access to the list of open connections from multiple threads
+        std::lock_guard<std::mutex> lock(this->connectionListMutex);
+
+        //Remove the connection handle from our list of open connections
+        auto connVal = conn.lock();
+        auto newEnd = std::remove_if(this->openConnections.begin(), this->openConnections.end(), [&connVal](ClientConnection elem)
+        {
+            //If the pointer has expired, remove it from the vector
+            if (elem.expired() == true) {
+                return true;
+            }
+
+            //If the pointer is still valid, compare it to the handle for the closed connection
+            auto elemVal = elem.lock();
+            if (elemVal.get() == connVal.get()) {
+                return true;
+            }
+
+            return false;
+        });
+
+        //Truncate the connections vector to erase the removed elements
+        this->openConnections.resize(std::distance(openConnections.begin(), newEnd));
+    }
+
+    //Invoke any registered handlers
+    for (auto handler : this->disconnectHandlers) {
+        handler(conn);
+    }
+}
