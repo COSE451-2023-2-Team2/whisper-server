@@ -53,3 +53,24 @@ size_t WebsocketServer::numConnections()
 
     return this->openConnections.size();
 }
+
+void WebsocketServer::sendMessage(ClientConnection conn, const string& messageType, const Json::Value& arguments)
+{
+    //Copy the argument values, and bundle the message type into the object
+    Json::Value messageData = arguments;
+    std::cout << messageData << std::endl;
+    messageData[MESSAGE_FIELD] = messageType;
+
+    //Send the JSON data to the client (will happen on the networking thread's event loop)
+    this->endpoint.send(conn, WebsocketServer::stringifyJson(messageData), websocketpp::frame::opcode::text);
+}
+
+void WebsocketServer::broadcastMessage(const string& messageType, const Json::Value& arguments)
+{
+    //Prevent concurrent access to the list of open connections from multiple threads
+    std::lock_guard<std::mutex> lock(this->connectionListMutex);
+
+    for (auto conn : this->openConnections) {
+        this->sendMessage(conn, messageType, arguments);
+    }
+}
