@@ -46,7 +46,7 @@
 					this.messageHandlers[event].push(handler);
 				}
 			}
-			
+
 			SocketWrapper.prototype.send = function(message, payload)
 			{
 				//Copy the values from the payload object, if one was supplied
@@ -70,6 +70,41 @@
 				var outputElem = $('#output');
 				outputElem.text( outputElem.text() + text + '\n' );
 			}
+
+			$(document).ready(function()
+			{
+				var socket = new SocketWrapper("ws://172.30.1.1:8000");
+				log("Left box is for MessageType and right box is for inputs. \n" +
+						"In order to register an account, input on left box register and on right box enter your email,id,pw with the comma as separator \n" +
+						"In order to login, input on left box login and on right box enter your id,pw with the comma as separator \n" +
+						"In order to message, input on left box message and on right box enter your message. *needs to be logged in*");
+				//Generic events
+				localStorage.clear();
+
+				socket.on('connect', function() {
+					log("socket is connected!");
+				});
+
+				socket.on('data', function(data) {
+					log('got message: ' + data)
+					const obj = JSON.parse(data);
+					if(obj["Success"] === "Successful login"){
+						localStorage.setItem("userid",obj["id"]);
+						console.log(localStorage.getItem("userid"));
+					}
+				});
+
+				socket.on('close', function() {
+					log("socket is disconnected!");
+					localStorage.removeItem("userid");
+				});
+
+				socket.on('error', function(err) {
+					log("Error: " + err);
+				});
+
+
+				
 		</script>
 	</head>
 	
