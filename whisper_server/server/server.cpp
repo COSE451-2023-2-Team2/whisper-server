@@ -150,164 +150,159 @@ int main(int argc, char* argv[]) {
 
     //Register our network callbacks, ensuring the logic is run on the main thread's event loop
     server.connect([&mainEventLoop, &server](ClientConnection conn)
-                   {
-                       mainEventLoop.post([conn, &server]()
-                                          {
-                                              std::clog << "Connection opened." << std::endl;
-                                              std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
+    {
+        mainEventLoop.post([conn, &server]()
+        {
+            std::clog << "Connection opened." << std::endl;
+            std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
 
-                                              //Send a hello message to the client
-                                              //server.sendMessage(conn, std::to_string(server.numConnections()), Json::Value());
-                                              Json::Value newArg;
-                                              newArg["id"] = "Server";
-                                              newArg["message"] = "Hello! Welcome to Cesco's chat, there are currently: " + std::to_string(server.numConnections()) + " active users";
-                                              server.broadcastMessage("message", newArg);
-                                          });
-                   });
+            //Send a hello message to the client
+            //server.sendMessage(conn, std::to_string(server.numConnections()), Json::Value());
+            Json::Value newArg;
+            newArg["id"] = "Server";
+            newArg["message"] = "Hello! Welcome to Cesco's chat, there are currently: " + std::to_string(server.numConnections()) + " active users";
+            server.broadcastMessage("message", newArg);
+        });
+    });
     server.disconnect([&mainEventLoop, &server](ClientConnection conn)
-                      {
-                          mainEventLoop.post([conn, &server]()
-                                             {
-                                                 std::clog << "Connection closed." << std::endl;
-                                                 std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
-                                                 Json::Value newArg;
-                                                 newArg["id"] = "Server";
-                                                 newArg["message"] = "Someone has left the chat. Current active user count:" + std::to_string(server.numConnections());
-                                                 server.broadcastMessage("message", newArg);
-                                             });
-                      });
+    {
+        mainEventLoop.post([conn, &server]()
+        {
+            std::clog << "Connection closed." << std::endl;
+            std::clog << "There are now " << server.numConnections() << " open connections." << std::endl;
+            Json::Value newArg;
+            newArg["id"] = "Server";
+            newArg["message"] = "Someone has left the chat. Current active user count:" + std::to_string(server.numConnections());
+            server.broadcastMessage("message", newArg);
+        });
+    });
     server.message("message", [&mainEventLoop, &server](ClientConnection conn, const Json::Value& args)
     {
         mainEventLoop.post([conn, args, &server]()
-                           {
-                               std::clog << "message handler on the main thread" << std::endl;
-                               std::clog << "Message payload:" << std::endl;
-                               for (auto key : args.getMemberNames()) {
-                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
-                               }
+        {
+            std::clog << "message handler on the main thread" << std::endl;
+            std::clog << "Message payload:" << std::endl;
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
 
-                               //Echo the message pack to the client
-                               //server.sendMessage(conn, "message", args);
-                               if(!args["id"].isNull()){
-                                   server.broadcastMessage("message", args);
-                               }
+            //Echo the message pack to the client
+            //server.sendMessage(conn, "message", args);
+            if(!args["id"].isNull()){
+                server.broadcastMessage("message", args);
+            }
 
-                           });
+        });
     });
     server.message("login", [&mainEventLoop, &server, &users](ClientConnection conn, const Json::Value& args)
     {
         mainEventLoop.post([conn, args, &server, &users]()
-                           {
-                               for (auto key : args.getMemberNames()) {
-                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
-                               }
-                               processID(args["id"].asString());
+        {
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
+            processID(args["id"].asString());
 
-                               char temp[24] = "";
-                               cf(temp, sizeof(temp) - 1);
+            char temp[24] = "";
+            cf(temp, sizeof(temp) - 1);
 
-                               //show the string
-                               //std::clog << args["id"].asString() << std::endl;
-                               //std::clog << args["pw"].asString() << std::endl;
-                               std::printf(args["id"].asCString());
-                               std::printf(args["pw"].asCString());
-                               if(args["id"].asString().empty() || args["pw"].asString().empty()){
-                                   Json::Value newArg;
-                                   newArg["Error"] = "ID and/or PW is wrong";
-                                   server.sendMessage(conn, "error", newArg);
-                               } else {
-                                   if(users.get(args["id"].asString()) == args["pw"].asString()){
-                                       Json::Value newArg;
-                                       newArg["Success"] = "Successful login";
-                                       newArg["id"] = args["id"].asString();
-                                       server.sendMessage(conn, "success", newArg);
-                                   } else {
-                                       Json::Value newArg;
-                                       newArg["Error"] = "ID and/or PW is wrong";
-                                       server.sendMessage(conn, "error", newArg);
-                                   }
-                               }
+            //show the string
+            //std::clog << args["id"].asString() << std::endl;
+            //std::clog << args["pw"].asString() << std::endl;
+            std::printf(args["id"].asCString());
+            std::printf(args["pw"].asCString());
+            if(args["id"].asString().empty() || args["pw"].asString().empty()){
+                Json::Value newArg;
+                newArg["Error"] = "ID and/or PW is wrong";
+                server.sendMessage(conn, "error", newArg);
+            } else {
+                if(users.get(args["id"].asString()) == args["pw"].asString()){
+                    Json::Value newArg;
+                    newArg["Success"] = "Successful login";
+                    newArg["id"] = args["id"].asString();
+                    server.sendMessage(conn, "success", newArg);
+                } else {
+                    Json::Value newArg;
+                    newArg["Error"] = "ID and/or PW is wrong";
+                    server.sendMessage(conn, "error", newArg);
+                }
+            }
 
-                           });
+        });
     });
     server.message("register", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
     {
         mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
-                           {
-                               for (auto key : args.getMemberNames()) {
-                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
-                               }
-                               std::clog << args["email"].asString() << std::endl;
-                               std::clog << args["id"].asString() << std::endl;
-                               std::clog << args["pw"].asString() << std::endl;
+        {
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
+            std::clog << args["email"].asString() << std::endl;
+            std::clog << args["id"].asString() << std::endl;
+            std::clog << args["pw"].asString() << std::endl;
+            if(users.checkIfKeyExist(args["id"].asString()) || email.checkIfKeyExist(args["email"].asString())){
+                Json::Value newArg;
+                //newArg.append("Error, this id is taken");
+                newArg["Error"] = "Error, this id/email is taken";
+                server.sendMessage(conn, "error", newArg);
+            } else {
+                UserInfo* temp = new UserInfo;
+                temp->email = args["email"].asString();
+                temp->id = args["id"].asString();
+                temp->pw = args["pw"].asString();
+                UserInfo_Map.push_back(temp);
+                index_list[args["id"].asString()] = user_index;
 
-                               if(users.checkIfKeyExist(args["id"].asString()) || email.checkIfKeyExist(args["email"].asString())){
-                                   Json::Value newArg;
-                                   //newArg.append("Error, this id is taken");
-                                   newArg["Error"] = "Error, this id/email is taken";
-                                   server.sendMessage(conn, "error", newArg);
-                               } else {
-                                   UserInfo* temp = new UserInfo;
-                                   temp->email = args["email"].asString();
-                                   temp->id = args["id"].asString();
-                                   temp->pw = args["pw"].asString();
-                                   UserInfo_Map.push_back(temp);
-
-                                   index_list[args["id"].asString()] = user_index;
-
-                                   user_index++;
-
-                                   users.put(args["id"].asString(), args["pw"].asString());
-                                   email.put(args["email"].asString(), args["id"].asString());
-                                   saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
-                                   Json::Value newArg;
-                                   newArg["Success"] = "Successful registration";
-                                   server.sendMessage(conn, "success", newArg);
-                                   server.sendMessage(conn,"register", args);
-                               }
-                           });
+                user_index++;
+                users.put(args["id"].asString(), args["pw"].asString());
+                email.put(args["email"].asString(), args["id"].asString());
+                saveData(args["email"].asString(), args["id"].asString(), args["pw"].asString());
+                Json::Value newArg;
+                newArg["Success"] = "Successful registration";
+                server.sendMessage(conn, "success", newArg);
+                server.sendMessage(conn,"register", args);
+            }
+        });
     });
 
     server.message("resign", [&mainEventLoop, &server, &users, &email, &UserInfo_Map, &user_index](ClientConnection conn, const Json::Value& args)
     {
         mainEventLoop.post([conn, args, &server, &users, &email, &UserInfo_Map, &user_index]()
-                           {
-                               for (auto key : args.getMemberNames()) {
-                                   std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
-                               }
-                               std::clog << args["email"].asString() << std::endl;
-                               std::clog << args["id"].asString() << std::endl;
-                               std::clog << args["pw"].asString() << std::endl;
+        {
+            for (auto key : args.getMemberNames()) {
+                std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
+            }
+            std::clog << args["email"].asString() << std::endl;
+            std::clog << args["id"].asString() << std::endl;
+            std::clog << args["pw"].asString() << std::endl;
 
-                               //change password
-                               if(users.checkIfKeyExist(args["id"].asString())) {
-                                   int index = index_list[args["id"].asString()];
+            //change password
+            if(users.checkIfKeyExist(args["id"].asString())) {
+                int index = index_list[args["id"].asString()];
 
-                                   UserInfo* origin = new UserInfo;
+                UserInfo* origin = new UserInfo;
+                //original email&id&password
+                origin->email = UserInfo_Map[index]->email;
+                origin->id = UserInfo_Map[index]->id;
+                origin->pw = UserInfo_Map[index]->pw;
+                origin->print();
+                delete origin;
 
-                                   //original email&id&password
-                                   origin->email = UserInfo_Map[index]->email;
-                                   origin->id = UserInfo_Map[index]->id;
-                                   origin->pw = UserInfo_Map[index]->pw;
-                                   origin->print();
+                //original email&id + new password
+                UserInfo* new_ = new UserInfo;
+                new_->email = UserInfo_Map[index]->email;
+                new_->id = UserInfo_Map[index]->id;
+                new_->pw = args["pw"].asString();
+                origin->print();
 
-                                   delete origin;
-
-                                   //original email&id + new password
-                                   UserInfo* new_ = new UserInfo;
-                                   new_->email = UserInfo_Map[index]->email;
-                                   new_->id = UserInfo_Map[index]->id;
-                                   new_->pw = args["pw"].asString();
-                                   origin->print();
-
-                                   Json::Value newArg;
-                                   newArg["Success"] = "Successful reset";
-                                   server.sendMessage(conn, "success", newArg);
-                               }
-                               else{
-                                   server.sendMessage(conn, "Failed", "Your email/id is wrong");
-                               }
-                           });
+                Json::Value newArg;
+                newArg["Success"] = "Successful reset";
+                server.sendMessage(conn, "success", newArg);
+            }
+            else{
+                server.sendMessage(conn, "Failed", "Your email/id is wrong");
+            }
+        });
     });
     //Start the networking thread
     std::thread serverThread([&server]() {
@@ -316,24 +311,23 @@ int main(int argc, char* argv[]) {
 
     //Start a keyboard input thread that reads from stdin
     std::thread inputThread([&server, &mainEventLoop]()
-                            {
-                                string input;
-                                while (1)
-                                {
-                                    //Read user input from stdin
-                                    std::getline(std::cin, input);
+    {
+        string input;
+        while (1)
+        {
+            //Read user input from stdin
+            std::getline(std::cin, input);
+            //Broadcast the input to all connected clients (is sent on the network thread)
+            Json::Value payload;
+            payload["input"] = input;
+            server.broadcastMessage("userInput", payload);
 
-                                    //Broadcast the input to all connected clients (is sent on the network thread)
-                                    Json::Value payload;
-                                    payload["input"] = input;
-                                    server.broadcastMessage("userInput", payload);
-
-                                    //Debug output on the main thread
-                                    mainEventLoop.post([]() {
-                                        std::clog << "User input debug output on the main thread" << std::endl;
-                                    });
-                                }
-                            });
+            //Debug output on the main thread
+            mainEventLoop.post([]() {
+                std::clog << "User input debug output on the main thread" << std::endl;
+            });
+        }
+    });
     
     //Start the event loop for the main thread
     asio::io_service::work work(mainEventLoop);
