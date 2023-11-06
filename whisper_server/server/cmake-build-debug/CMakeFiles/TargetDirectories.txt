@@ -1,0 +1,4 @@
+/Users/nichuankun/code/whisper-monorepo/whisper_server/server/cmake-build-debug/CMakeFiles/jsoncpp.dir
+/Users/nichuankun/code/whisper-monorepo/whisper_server/server/cmake-build-debug/CMakeFiles/server.dir
+/Users/nichuankun/code/whisper-monorepo/whisper_server/server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/nichuankun/code/whisper-monorepo/whisper_server/server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
