@@ -119,5 +119,27 @@ void shell_func(){
 }
 
 int main(int argc, char* argv[]) {
+    std::string cur_dir(argv[0]);
+    int pos = cur_dir.find_last_of("/\\");
+    dir = cur_dir.substr(0, pos-24);
+    dir.append("data.txt");
+    std::cout << dir << std::endl;
+    //std::cout << "path: " << cur_dir.substr(0, pos-24) << std::endl;
+    //std::cout << "file: " << cur_dir.substr(pos+1) << std::endl;
+    //Create the event loop for the main thread, and the WebSocket server
+    asio::io_service mainEventLoop;
+    WebsocketServer server;
+    Hashmap users;
+    Hashmap email;
+    std::vector<UserInfo*> UserInfo_Map;
+    int user_index=0;
+    loadData(users, email);
+    char *wd;
+    char h[128];
+    wd = getenv("PWD");
+    if(wd != NULL) {
+        sprintf(h, "Your working directory is: %s !", wd);
+        printf("%s\n", h);
+    }
     return 0;
 }
