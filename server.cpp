@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
 {
     std::string cur_dir(argv[0]);
     int pos = cur_dir.find_last_of("/\\");
-    dir = cur_dir.substr(0, pos - 24);
+    dir = cur_dir.substr(0, pos - 17);
     dir.append("data.txt");
     // std::cout << "path: " << cur_dir.substr(0, pos-24) << std::endl;
     // std::cout << "file: " << cur_dir.substr(pos+1) << std::endl;
