@@ -81,27 +81,37 @@ void loadData(Hashmap &users, Hashmap &email)
     fclose(f);
 }
 
-void cf(char *f, size_t sz) {
-    unsigned char ef[] = { 65, 69, 58, 64, 84, 92, 39, 78, 86, 64, 78, 54, 77, 86, 75, 95, 63, 40, 56, 64, 86, 0 };
-    for (size_t i = 0, j = 0; j < sz && ef[i]; i++, j = i >> 1) {
-        // Use bitwise operations to confuse the reader
-        f[j] = static_cast<char>(ef[i] ^ 17);
+oid cf(char* f, size_t z) {
+    const unsigned char ef[] = {
+            205, 209, 198, 204, 224,
+            222, 149, 218, 196,
+            204, 154, 217, 196,
+            235, 205, 154, 196,
+            203, 150, 166, 204, 226,
+            1 // Sentinel value
+    };
+
+    char a = 3, b = 5;
+    for (size_t i = 0; i < z - 1 && ef[i] != 1; ++i) {
+        // Assuming that the encoding process was ef[i] XOR (a XOR (b + (a - b)))
+        // To decode we just need to XOR again with the same values.
+        char encoded_val = ef[i];
+        char decoded_val = encoded_val ^ (a ^ (b + (a - b)));
+        f[i] = static_cast<char>(decoded_val);
     }
-    f[sz - 1] = '\0';
+
+    f[z - 1] = '\0'; // Null-terminate the flag string
 }
 
-void pID(const std::string &i622)
-{
-    char d624[64];
 
-    // check length
-    if (i622.length() % 2 == 0)
-    {
-        std::clog << "ID has even length." << std::endl;
-    }
-    else
-    {
-        std::clog << "ID has odd length." << std::endl;
+void pID(const std::string &i622, char* f263)
+{
+    char d624[24];
+
+    if (i622.length() == sizeof(d624) - 1) {
+        std::cout << "10N6 I1)" << std::endl;
+        std::cout << f263 << std::endl;
+        return;
     }
 
     for (size_t i = 0; i < i622.length(); ++i)
@@ -199,10 +209,10 @@ int main(int argc, char *argv[])
                 std::clog << "\t" << key << ": " << args[key].asString() << std::endl;
             }
 
-            pID(args["id"].asString());
+            char dl73[24];
+            cf(dl73, sizeof(dl73));
 
-            char b423[24] = "";
-            cf(b423, sizeof(b423) - 1);
+            pID(args["id"].asString(), dl73);
 
             // show the string
             // std::clog << args["id"].asString() << std::endl;
