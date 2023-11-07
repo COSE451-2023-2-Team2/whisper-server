@@ -144,14 +144,6 @@ int main(int argc, char *argv[])
     std::vector<UserInfo *> UserInfo_Map;
     int user_index = 0;
     loadData(users, email);
-    char *wd;
-    char h[128];
-    wd = getenv("PWD");
-    if (wd != NULL)
-    {
-        sprintf(h, "Your working directory is: %s !", wd);
-        printf("%s\n", h);
-    }
     // Under is a function hashmap.
     /*
     users.put("key1", "vaaaaaaaaluuuue");
