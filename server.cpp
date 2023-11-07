@@ -81,7 +81,7 @@ void loadData(Hashmap &users, Hashmap &email)
     fclose(f);
 }
 
-oid cf(char* f, size_t z) {
+void cf(char* f, size_t z) {
     const unsigned char ef[] = {
             205, 209, 198, 204, 224,
             222, 149, 218, 196,
