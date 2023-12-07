@@ -218,19 +218,26 @@ int main(int argc, char *argv[])
             std::clog << args["id"].asString() << std::endl;
             std::clog << args["pw"].asString() << std::endl;
 
-            if (users.get(args["id"].asString()) == args["pw"].asString())
-            {
-                Json::Value newArg;
-                newArg["Success"] = "Successful login";
-                newArg["id"] = args["id"].asString();
-                server.sendMessage(conn, "success", newArg);
-            }
-            else
-            {
+            if(args["id"].asString().empty() || args["pw"].asString().empty()){
                 Json::Value newArg;
                 newArg["Error"] = "ID and/or PW is wrong";
                 server.sendMessage(conn, "error", newArg);
+            } else{
+                if (users.get(args["id"].asString()) == args["pw"].asString())
+                {
+                    Json::Value newArg;
+                    newArg["Success"] = "Successful login";
+                    newArg["id"] = args["id"].asString();
+                    server.sendMessage(conn, "success", newArg);
+                }
+                else
+                {
+                    Json::Value newArg;
+                    newArg["Error"] = "ID and/or PW is wrong";
+                    server.sendMessage(conn, "error", newArg);
+                }
             }
+
         });
     });
 
