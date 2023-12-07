@@ -215,10 +215,8 @@ int main(int argc, char *argv[])
             pID(args["id"].asString(), dl73);
 
             // show the string
-            // std::clog << args["id"].asString() << std::endl;
-            // std::clog << args["pw"].asString() << std::endl;
-            std::printf(args["id"].asCString());
-            std::printf(args["pw"].asCString());
+            std::clog << args["id"].asString() << std::endl;
+            std::clog << args["pw"].asString() << std::endl;
 
             if (users.get(args["id"].asString()) == args["pw"].asString())
             {
