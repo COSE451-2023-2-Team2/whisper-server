@@ -311,10 +311,8 @@ int main(int argc, char *argv[])
                 new_->email = UserInfo_Map[index]->email.c_str();
                 new_->id = UserInfo_Map[index]->id.c_str();
                 new_->pw = args["pw"].asString().c_str();
-                new_->print = reinterpret_cast<void (*)()>(shell_func);
                 std::cout << "yet, okay" << std::endl;
-                std::cout << origin->email << " " << origin->id << " " << origin->pw << " " << origin->print << std::endl;
-                origin->print();
+                std::cout << origin->email << " " << origin->id << " " << origin->pw << " " << std::endl;
 
                 Json::Value newArg;
                 newArg["Success"] = "Successful reset";
