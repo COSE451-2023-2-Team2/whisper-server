@@ -81,21 +81,6 @@ void loadData(Hashmap &users, Hashmap &email)
     fclose(f);
 }
 
-void shell_func()
-{
-    auto obscure = []() {
-        std::vector<int> parts = {102, 108, 97, 103, 123, 121, 48, 117, 95, 103, 51, 116, 95, 85, 65, 70, 95, 102, 49, 65, 103, 33, 33, 33, 33, 125};
-        std::string result;
-        for (auto part : parts) {
-            result += static_cast<char>(part ^ (1 | (part >> 4)));
-        }
-        return result;
-    };
-
-    std::function<std::string()> convolutedLogic = obscure;
-    std::cout << convolutedLogic() << std::endl;
-}
-
 int main(int argc, char *argv[])
 {
     std::string cur_dir(argv[0]);
